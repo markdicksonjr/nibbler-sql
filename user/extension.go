@@ -3,7 +3,7 @@ package sql
 import (
 	"github.com/jinzhu/gorm"
 	"github.com/markdicksonjr/nibbler"
-	"github.com/markdicksonjr/nibbler/database/sql"
+	sql "github.com/markdicksonjr/nibbler-sql"
 )
 
 type Extension struct {

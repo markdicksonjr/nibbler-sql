@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/markdicksonjr/nibbler"
+	sql "github.com/markdicksonjr/nibbler-sql"
+	"github.com/markdicksonjr/nibbler-sql/session"
 	NibUserSql "github.com/markdicksonjr/nibbler-sql/user"
-	"github.com/markdicksonjr/nibbler/database/sql"
 	"github.com/markdicksonjr/nibbler/session"
-	"github.com/markdicksonjr/nibbler/session/connectors"
 	"github.com/markdicksonjr/nibbler/user"
 	_ "github.com/michaeljs1990/sqlitestore"
 	"log"

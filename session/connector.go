@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/gorilla/sessions"
 	"github.com/jinzhu/gorm"
-	"github.com/markdicksonjr/nibbler/database/sql"
+	sql "github.com/markdicksonjr/nibbler-sql"
 	"github.com/wader/gormstore"
 )
 

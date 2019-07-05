@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/markdicksonjr/nibbler"
-	"github.com/markdicksonjr/nibbler/database/sql"
+	sql "github.com/markdicksonjr/nibbler-sql"
 	"log"
 )
 
