@@ -87,8 +87,12 @@ func (s *Extension) Init(app *nibbler.Application) error {
 	return nil
 }
 
-func (s *Extension) AddRoutes(app *nibbler.Application) error {
+func (s *Extension) PostInit(app *nibbler.Application) error {
 	return nil
+}
+
+func (s *Extension) GetName() string {
+	return "sql"
 }
 
 func (s *Extension) GetConfiguration() *Configuration {
@@ -145,19 +149,19 @@ func (s *Extension) GetBestConfiguration(app *nibbler.Application) (*Configurati
 	var scheme *string
 
 	// if we got no configuration information from the app, that's an error
-	if app.GetConfiguration() == nil {
+	if app.Config == nil {
 		return nil, errors.New("sql extension could not get configuration")
 	}
 
 	// if the root config is available, attempt to get the SQL URL from it
-	if app.GetConfiguration().Raw != nil {
-		dbUrl := app.GetConfiguration().Raw.Get("sql", "url").String("")
+	if app.Config.Raw != nil {
+		dbUrl := app.Config.Raw.Get("sql", "url").String("")
 
 		// parse the url if able, fall back to database.url
 		if len(dbUrl) > 0 {
 			urlParsed, _ = url.Parse(dbUrl)
 		} else {
-			dbUrl = app.GetConfiguration().Raw.Get("database", "url").String("")
+			dbUrl = app.Config.Raw.Get("database", "url").String("")
 		}
 
 		// if we still don't have a URL, parse the url if able, fall back to db.url
@@ -165,7 +169,7 @@ func (s *Extension) GetBestConfiguration(app *nibbler.Application) (*Configurati
 			if len(dbUrl) > 0 {
 				urlParsed, _ = url.Parse(dbUrl)
 			} else {
-				dbUrl = app.GetConfiguration().Raw.Get("db", "url").String("")
+				dbUrl = app.Config.Raw.Get("db", "url").String("")
 			}
 
 			if len(dbUrl) > 0 {
@@ -194,10 +198,10 @@ func (s *Extension) GetBestConfiguration(app *nibbler.Application) (*Configurati
 
 	// apply fallback user/password
 	if urlParsed.User == nil {
-		if app.GetConfiguration().Raw != nil {
+		if app.Config.Raw != nil {
 			urlParsed.User = url.UserPassword(
-				app.GetConfiguration().Raw.Get("db", "user").String(""),
-				app.GetConfiguration().Raw.Get("db", "password").String(""),
+				app.Config.Raw.Get("db", "user").String(""),
+				app.Config.Raw.Get("db", "password").String(""),
 			)
 		} else {
 			urlParsed.User = url.UserPassword("", "")
@@ -216,17 +220,17 @@ func (s *Extension) GetBestConfiguration(app *nibbler.Application) (*Configurati
 		newHostParts[0] = hostParts[0]
 		hostParts = newHostParts
 
-		if app.GetConfiguration().Raw != nil {
+		if app.Config.Raw != nil {
 			if len(hostParts[0]) == 0 {
-				hostParts[0] = app.GetConfiguration().Raw.Get("db", "host").String("")
+				hostParts[0] = app.Config.Raw.Get("db", "host").String("")
 			}
-			hostParts[1] = app.GetConfiguration().Raw.Get("db", "port").String("")
+			hostParts[1] = app.Config.Raw.Get("db", "port").String("")
 		}
 	}
 
 	// apply fallback path/name parameter if needed
-	if len(urlParsed.Path) == 0 && app.GetConfiguration().Raw != nil {
-		urlParsed.Path = app.GetConfiguration().Raw.Get("db", "dbname").String("")
+	if len(urlParsed.Path) == 0 && app.Config.Raw != nil {
+		urlParsed.Path = app.Config.Raw.Get("db", "dbname").String("")
 	}
 
 	if schemeAcceptsLeadingSlashInPath(urlParsed.Scheme) {

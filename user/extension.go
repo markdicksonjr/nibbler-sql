@@ -16,6 +16,10 @@ func (s *Extension) Init(app *nibbler.Application) error {
 	return nil
 }
 
+func (s *Extension) GetName() string {
+	return "sql-user"
+}
+
 func (s *Extension) GetUserById(id string) (*nibbler.User, error) {
 	userValue := nibbler.User{}
 	err := s.SqlExtension.Db.First(&userValue, id).Error

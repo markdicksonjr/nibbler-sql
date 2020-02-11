@@ -9,7 +9,7 @@ import (
 func main() {
 
 	// allocate logger and configuration
-	config, err := nibbler.LoadConfiguration(nil)
+	config, err := nibbler.LoadConfiguration()
 
 	if err != nil {
 		log.Fatal(err.Error())
