@@ -50,7 +50,6 @@ func (s *Extension) GetUserByUsername(username string) (*nibbler.User, error) {
 		return nil, nil
 	}
 
-	// TODO: nil, return code?, db error code?
 	return &userValue, err
 }
 
@@ -82,21 +81,17 @@ func (s *Extension) GetUserByEmailValidationToken(token string) (*nibbler.User, 
 
 func (s *Extension) Create(user *nibbler.User) (*nibbler.User, error) {
 	err := s.SqlExtension.Db.Create(user).Error
-	// TODO: nil, return code?, db error code?
 	return user, err
 }
 
 func (s *Extension) Update(userValue *nibbler.User) error {
-	// TODO: possibly use First(), update fields we care about, then use Save
-	// Update will not save nil values, but Save will, presumably
+	// Update will not save nil values, but Save will
+	return s.SqlExtension.Db.Model(userValue).Updates(*userValue).Error
+}
 
-	return s.SqlExtension.Db.Model(userValue).Updates(nibbler.User{
-		ID:                      userValue.ID,
-		FirstName:               userValue.FirstName,
-		LastName:                userValue.LastName,
-		PasswordResetToken:      userValue.PasswordResetToken,
-		PasswordResetExpiration: userValue.PasswordResetExpiration,
-	}).Error
+func (s *Extension) Save(userValue *nibbler.User) error {
+	// Update will not save nil values, but Save will
+	return s.SqlExtension.Db.Model(userValue).Save(*userValue).Error
 }
 
 func (s *Extension) UpdatePassword(userValue *nibbler.User) error {
