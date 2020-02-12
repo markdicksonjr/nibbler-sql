@@ -22,7 +22,7 @@ func (s *Extension) GetName() string {
 
 func (s *Extension) GetUserById(id string) (*nibbler.User, error) {
 	userValue := nibbler.User{}
-	err := s.SqlExtension.Db.First(&userValue, id).Error
+	err := s.SqlExtension.Db.First(&userValue, "id = ?", id).Error
 
 	if gorm.IsRecordNotFoundError(err) {
 		return nil, nil
