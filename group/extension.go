@@ -52,10 +52,17 @@ func (s *SqlPersistenceExtension) GetPrivilegesForAction(
 	var privs []nibbler.GroupPrivilege
 	if resourceId == nil {
 		err := db.Model(&nibbler.Group{ID: groupId}).
-			Where(&nibbler.GroupPrivilege{Action: action, ResourceID: ""}).
+			Where(&nibbler.GroupPrivilege{Action: action}).
 			Related(&privs).
 			Error
-		return privs, err
+
+		var filteredPrivs []nibbler.GroupPrivilege
+		for _, p := range privs {
+			if p.ResourceID == "" {
+				filteredPrivs = append(filteredPrivs, p)
+			}
+		}
+		return filteredPrivs, err
 	}
 	err := db.Model(&nibbler.Group{ID: groupId}).
 		Where(&nibbler.GroupPrivilege{Action: action, ResourceID: *resourceId}).
