@@ -52,7 +52,7 @@ func (s *SqlPersistenceExtension) GetPrivilegesForAction(
 	var privs []nibbler.GroupPrivilege
 	if resourceId == nil {
 		err := db.Model(&nibbler.Group{ID: groupId}).
-			Where(&nibbler.GroupPrivilege{Action: action}).
+			Where(&nibbler.GroupPrivilege{Action: action, ResourceID: ""}).
 			Related(&privs).
 			Error
 		return privs, err
