@@ -106,7 +106,7 @@ func (s *SqlPersistenceExtension) GetGroupsById(groupIds []string, includePrivil
 
 	// load privileges if needed
 	if includePrivileges {
-		for _, g := range groups {
+		for i, g := range groups {
 			var privs []nibbler.GroupPrivilege
 			err := s.SqlExtension.Db.Model(&g).
 				Related(&privs).
@@ -116,7 +116,7 @@ func (s *SqlPersistenceExtension) GetGroupsById(groupIds []string, includePrivil
 				return nil, err
 			}
 
-			g.Privileges = privs
+			groups[i].Privileges = privs
 		}
 	}
 	return groups, err
