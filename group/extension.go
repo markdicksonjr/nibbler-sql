@@ -12,7 +12,7 @@ import (
 type SqlPersistenceExtension struct {
 	nibbler_user_group.PersistenceExtension
 	SqlExtension *nibbler_sql.Extension
-	tx *gorm.DB
+	tx           *gorm.DB
 }
 
 func (s *SqlPersistenceExtension) StartTransaction() (nibbler_user_group.PersistenceExtension, error) {
@@ -97,6 +97,16 @@ func (s *SqlPersistenceExtension) CreateGroup(group nibbler.Group) error {
 	return s.SqlExtension.Db.Create(group).Error
 }
 
+func (s *SqlPersistenceExtension) DeleteGroup(groupId string, hardDelete bool) error {
+	group := nibbler.Group{
+		ID: groupId,
+	}
+	if hardDelete {
+		return s.SqlExtension.Db.Unscoped().Delete(&group).Error
+	}
+	return s.SqlExtension.Db.Delete(&group).Error
+}
+
 func (s *SqlPersistenceExtension) GetGroupsById(groupIds []string, includePrivileges bool) ([]nibbler.Group, error) {
 	var groups []nibbler.Group
 	err := s.SqlExtension.Db.Where("id IN (?)", funk.UniqString(groupIds)).Find(&groups).Error
@@ -148,4 +158,43 @@ func (s *SqlPersistenceExtension) AddPrivilegeToGroups(groupIdList []string, tar
 
 	}
 	return nil
+}
+
+func (s *SqlPersistenceExtension) SearchGroups(query nibbler.SearchParameters, includePrivileges bool) (*nibbler.SearchResults, error) {
+	var groups []nibbler.Group
+	offset := 0
+	limit := 10
+	if query.Offset != nil {
+		offset = *query.Offset
+	}
+	if query.Size != nil {
+		limit = *query.Size
+	}
+
+	count := 0
+	if err := s.SqlExtension.Db.Find(&groups).Offset(offset).Limit(limit).Count(&count).Error; err != nil {
+		return nil, err
+	}
+
+	result := nibbler.SearchResults{
+		Hits:   groups,
+		Offset: &offset,
+		Total:  nil,
+	}
+
+	if query.IncludeTotal {
+		result.Total = &count
+	}
+
+	return &result, nil
+}
+
+func (s *SqlPersistenceExtension) DeletePrivilege(id string, hardDelete bool) error {
+	priv := nibbler.GroupPrivilege{
+		ID: id,
+	}
+	if hardDelete {
+		return s.SqlExtension.Db.Unscoped().Delete(&priv).Error
+	}
+	return s.SqlExtension.Db.Delete(&priv).Error
 }
