@@ -29,6 +29,7 @@ func (s *SqlPersistenceExtension) StartTransaction() (nibbler_user_group.Persist
 
 func (s *SqlPersistenceExtension) RollbackTransaction() error {
 	s.tx.Rollback()
+	s.tx = nil
 	return nil
 }
 

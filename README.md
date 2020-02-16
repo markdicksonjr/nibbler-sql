@@ -17,4 +17,4 @@ If any part of the needed credentials are not obtained at that stage, it will us
 
 At present, the dialects available are limited to `postgres`, `sqlite3`.  If none is detected,
 `sqlite3` will be used (in memory).  For example, you could use sqlite3 to connect to a file with `SQL_URL=sqlite3:///tmp/test.db`
-or something like `postgres://test:test@localhost:5432/test` to connect via postgres.
+or something like `postgres://test:test@localhost:5432/test` or `postgres://test:test@localhost:5432/test?sslmode=disable` to connect via postgres.
