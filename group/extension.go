@@ -97,13 +97,32 @@ func (s *SqlPersistenceExtension) CreateGroup(group nibbler.Group) error {
 	return s.SqlExtension.Db.Create(group).Error
 }
 
-func (s *SqlPersistenceExtension) GetGroupsById(groupIds []string) ([]nibbler.Group, error) {
+func (s *SqlPersistenceExtension) GetGroupsById(groupIds []string, includePrivileges bool) ([]nibbler.Group, error) {
 	var groups []nibbler.Group
 	err := s.SqlExtension.Db.Where("id IN (?)", funk.UniqString(groupIds)).Find(&groups).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// load privileges if needed
+	if includePrivileges {
+		for _, g := range groups {
+			var privs []nibbler.GroupPrivilege
+			err := s.SqlExtension.Db.Model(&g).
+				Related(&privs).
+				Error
+
+			if err != nil {
+				return nil, err
+			}
+
+			g.Privileges = privs
+		}
+	}
 	return groups, err
 }
 func (s *SqlPersistenceExtension) AddPrivilegeToGroups(groupIdList []string, targetGroupId string, action string) error {
-	groups, err := s.GetGroupsById(groupIdList)
+	groups, err := s.GetGroupsById(groupIdList, false)
 	if err != nil {
 		return err
 	}
