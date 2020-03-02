@@ -66,6 +66,35 @@ func (s *Extension) GetUserByPasswordResetToken(token string) (*nibbler.User, er
 	return &userValue, err
 }
 
+func (s *Extension) SearchUsers(query nibbler.SearchParameters) (*nibbler.SearchResults, error) {
+	var users []nibbler.User
+	offset := 0
+	limit := 10
+	if query.Offset != nil {
+		offset = *query.Offset
+	}
+	if query.Size != nil {
+		limit = *query.Size
+	}
+
+	count := 0
+	if err := s.SqlExtension.Db.Find(&users).Offset(offset).Limit(limit).Count(&count).Error; err != nil {
+		return nil, err
+	}
+
+	result := nibbler.SearchResults{
+		Hits:   users,
+		Offset: &offset,
+		Total:  nil,
+	}
+
+	if query.IncludeTotal {
+		result.Total = &count
+	}
+
+	return &result, nil
+}
+
 func (s *Extension) GetUserByEmailValidationToken(token string) (*nibbler.User, error) {
 	s.SqlExtension.Db.Error = nil
 
